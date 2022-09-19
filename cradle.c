@@ -1,4 +1,5 @@
 #include "cradle.h"
+#include "hashtable.h"
 
 #define STACKSIZ	3
 
@@ -73,7 +74,9 @@ char getname()
 {
 	if (!isalpha(look))
 		expected("Name");
-	char r = toupper(look);
+	// TODO: is toupper needed?
+	// char r = toupper(look);
+	char r = look;
 	nextchar();
 	return r;
 }
@@ -90,12 +93,21 @@ char getnum()
 
 // parse and execute a math factor
 void factor()
-// <factor> ::= (<expression>)
+// <factor> ::= <number> | (<expression>) | <variable>
 {
 	if (look == '(') {
 		match('(');
 		expression();
 		match(')');
+	}
+	else if (isalpha(look)) {
+		char varname[2] = {getname(), '\0'};
+		struct fentry *ep = lookup(varname);
+		if (ep == NULL) {
+			printf("var '%s' not found\n", varname);
+			return;
+		}
+		data[0] = lookup(varname)->func();
 	}
 	else
 		data[0] = getnum() - '0'; // EXEC

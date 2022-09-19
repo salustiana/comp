@@ -1,12 +1,5 @@
-#include "cradle_all.h"
-
-void expr()
-{
-	term();
-	while (look == '+' || look == '-') {
-
-	}
-}
+#include <stdio.h>
+#include "hashtable.h"
 
 int main()
 {

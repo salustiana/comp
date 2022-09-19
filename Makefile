@@ -1,6 +1,6 @@
 CC = gcc
-OBJS = main.o cradle.o
-TESTOBJS = test.c cradle.o
+OBJS = main.o cradle.o hashtable.o
+TESTOBJS = test.c cradle.o hashtable.o
 CFLAGS = -Wall -Wextra -pedantic -std=c99
 INCLUDES = -I ./includes
 #LIBS = -lGL -lglfw -ldl -lm -lmi
@@ -14,5 +14,8 @@ main.o: main.c
 cradle.o: cradle.c
 	${CC} -c cradle.c ${INCLUDES}
 
-test.out: ${OBJS} ./includes
+hashtable.o: hashtable.c
+	${CC} -c hashtable.c ${INCLUDES}
+
+test.out: ${TESTOBJS} ./includes
 	${CC} -o test.out ${TESTOBJS} ${INCLUDES} ${CFLAGS} #${LIBS}
