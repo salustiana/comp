@@ -8,14 +8,14 @@ int strcmp(const char *, const char *);
 char *strdup(const char *);
 
 
-struct fentry {
-	struct fentry	*next;
+struct entry {
+	struct entry	*next;
 	char		*name;
-	uint32_t	(*func)();
+	void		*content;
 };
 
-struct fentry *lookup(char *n);
+struct entry *lookup(char *n);
 
-// install new func entry, overwriting if exists
+// install new entry, overwriting if exists
 // return NULL if no space is left
-struct fentry *install(char *n, uint32_t (*func)());
+struct entry *install(char *n, void *content);

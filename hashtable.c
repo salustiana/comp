@@ -1,6 +1,6 @@
 #include "hashtable.h"
 
-static struct fentry *hashtab[HASHSIZE];
+static struct entry *hashtab[HASHSIZE];
 
 // hash function
 uint32_t hash(char *s)
@@ -11,30 +11,30 @@ uint32_t hash(char *s)
 	return hashval % HASHSIZE;
 }
 
-struct fentry *lookup(char *n)
+struct entry *lookup(char *n)
 {
-	struct fentry *ep;
+	struct entry *ep;
 	for (ep = hashtab[hash(n)]; ep != NULL; ep = ep->next)
 		if (strcmp(n, ep->name) == 0)
 			return ep;
 	return NULL;
 }
 
-// install new func entry, overwriting if exists
+// install new entry, overwriting if exists
 // return NULL if no space is left
-struct fentry *install(char *n, uint32_t (*func)())
+struct entry *install(char *n, void *content)
 {
-	struct fentry *ep = lookup(n);
+	struct entry *ep = lookup(n);
 	if (ep) {
-		ep->func = func;
+		ep->content = content;
 		return ep;
 	}
-	if ((ep = malloc(sizeof(struct fentry))) == NULL
+	if ((ep = malloc(sizeof(struct entry))) == NULL
 			|| (ep->name = strdup(n)) == NULL)
 		return NULL;
 	uint32_t hashval = hash(n);
 	ep->next = hashtab[hashval];
-	ep->func = func;
+	ep->content = content;
 	hashtab[hashval] = ep;
 	return ep;
 }

@@ -102,12 +102,13 @@ void factor()
 	}
 	else if (isalpha(look)) {
 		char varname[2] = {getname(), '\0'};
-		struct fentry *ep = lookup(varname);
+		struct entry *ep = lookup(varname);
 		if (ep == NULL) {
 			printf("var '%s' not found\n", varname);
 			return;
 		}
-		data[0] = lookup(varname)->func();
+		// data[0] = ((uint32_t (*)()) lookup(varname)->content)();
+		data[0] = *((int *) lookup(varname)->content);
 	}
 	else
 		data[0] = getnum() - '0'; // EXEC
