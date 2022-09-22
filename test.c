@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "hashtable.h"
+#include "data.h"
 
 int main()
 {

@@ -1,5 +1,6 @@
+#include "message.h"
 #include "cradle.h"
-#include "hashtable.h"
+#include "data.h"
 
 #define STACKSIZ	3
 
@@ -22,7 +23,7 @@ void push(uint32_t val)
 	*sp++ = val;
 }
 
-// for debugging purposes
+/* for debugging purposes */
 void printstack()
 {
 	for (int i = 0; i < STACKSIZ; i++)
@@ -30,34 +31,13 @@ void printstack()
 	printf("\n");
 }
 
-// new char from input stream
+/* new char from input stream */
 void nextchar()
 {
 	look = getchar();
 }
 
-// report error
-void error(const char *s)
-{
-	printf("Error: %s\n", s);
-}
-
-// report error and halt
-void panic(const char *s)
-{
-	error(s);
-	exit(1);
-}
-
-// report what was expected and halt
-void expected(const char *s)
-{
-	char e[1024];
-	sprintf(e, "%s Expected", s);
-	panic(e);
-}
-
-// match specific input char
+/* match specific input char */
 void match(char c)
 {
 	if (look == c)
@@ -69,7 +49,7 @@ void match(char c)
 	}
 }
 
-// get an identifier
+/* get an identifier */
 char getname()
 {
 	if (!isalpha(look))
@@ -81,7 +61,7 @@ char getname()
 	return r;
 }
 
-// get a number
+/* get a number */
 char getnum()
 {
 	if (!isdigit(look))
@@ -91,30 +71,33 @@ char getnum()
 	return r;
 }
 
-// parse and execute a math factor
+/* parse and execute a math factor */
 void factor()
 // <factor> ::= <number> | (<expression>) | <variable>
 {
+	void expression();
+	// (<expression>)
 	if (look == '(') {
 		match('(');
 		expression();
 		match(')');
 	}
+	// <variable>
 	else if (isalpha(look)) {
 		char varname[2] = {getname(), '\0'};
-		struct entry *ep = lookup(varname);
-		if (ep == NULL) {
+		uint32_t *vp = getvar(varname);
+		if (vp == NULL) {
 			printf("var '%s' not found\n", varname);
 			return;
 		}
-		// data[0] = ((uint32_t (*)()) lookup(varname)->content)();
-		data[0] = *((int *) lookup(varname)->content);
+		data[0] = *vp;
 	}
+	// <number>
 	else
 		data[0] = getnum() - '0'; // EXEC
 }
 
-// recognize and execute a multiply
+/* recognize and execute a multiply */
 void multiply()
 {
 	match('*');
@@ -122,7 +105,7 @@ void multiply()
 	data[0] *= pop(); // EXEC
 }
 
-// recognize and execute a divide
+/* recognize and execute a divide */
 void divide()
 {
 	match('/');
@@ -134,7 +117,7 @@ void divide()
 	*/
 }
 
-// parse and execute a math term
+/* parse and execute a math term */
 void term()
 // <term> ::= <factor> [<mulop> <factor>]*
 {
@@ -154,7 +137,7 @@ void term()
 	}
 }
 
-// recognize and execute an add
+/* recognize and execute an add */
 void add()
 {
 	match('+');
@@ -162,7 +145,7 @@ void add()
 	data[0] += pop(); // EXEC
 }
 
-// recognize and execute a subtract
+/* recognize and execute a subtract */
 void subtract()
 {
 	match('-');
@@ -176,7 +159,7 @@ int isaddop(char c)
 	return (c == '+' || c == '-');
 }
 
-// parse and execute a math expression
+/* parse and execute a math expression */
 void expression()
 // <expression> ::= [<addop>]* <term> [<addop> <term>]*
 {
@@ -203,7 +186,7 @@ void expression()
 	}
 }
 
-// initialize
+/* initialize */
 void init()
 {
 	nextchar();
