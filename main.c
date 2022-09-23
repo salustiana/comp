@@ -13,7 +13,6 @@ uint32_t ret_88()
 int main()
 {
 	savevar("x", 8);
+	savefunc("f", ret_88);
 	init();
-	expression();
-	printf("%d\n", data[0]);
 }

@@ -1,5 +1,15 @@
 #include "data.h"
 #include "message.h"
+#include "token.h"
+
+char *strdup(const char *s)
+{
+	size_t size = sizeof(char) * (strlen(s) + 1);
+	char *t = malloc(size);
+	if (t)
+		memcpy(t, s, size);
+	return t;
+}
 
 static struct ventry *vartab[HASHSIZE];
 static struct fentry *functab[HASHSIZE];
@@ -43,8 +53,8 @@ struct entry *install(const char *n, size_t size, struct entry *table[])
 	if (ep)
 		return ep;
 	if ((ep = malloc(size)) == NULL || (ep->name = strdup(n)) == NULL) {
-		char e[1024];
-		sprintf(e, "Could not allocate memory for %s\n", n);
+		char e[TOKENLEN];
+		sprintf(e, "could not allocate memory for %s", n);
 		panic(e);
 	}
 	uint32_t hashval = hash(n);
@@ -69,10 +79,24 @@ void savefunc(const char *n, uint32_t (*func)())
 
 uint32_t *getvar(const char *n)
 {
-	return &((struct ventry *) lookup(n, (struct entry **) vartab))->val;
+	struct ventry *ep = ((struct ventry *) lookup(n, (struct entry **) vartab));
+	if (ep == NULL) {
+		char e[TOKENLEN];
+		sprintf(e, "undeclared variable: %s", n);
+		panic(e);
+	}
+
+	return &ep->val;
 }
 
 uint32_t (*getfunc(const char *n))()
 {
-	return ((struct fentry *) lookup(n, (struct entry **) vartab))->func;
+	struct fentry *ep = ((struct fentry *) lookup(n, (struct entry **) functab));
+	if (ep == NULL) {
+		char e[TOKENLEN];
+		sprintf(e, "undeclared function: %s", n);
+		panic(e);
+	}
+
+	return ep->func;
 }

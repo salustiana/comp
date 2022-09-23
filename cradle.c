@@ -1,6 +1,7 @@
 #include "message.h"
 #include "cradle.h"
 #include "data.h"
+#include "token.h"
 
 #define STACKSIZ	3
 
@@ -13,13 +14,13 @@ static uint32_t *sp = stack;
 uint32_t pop()
 {
 	if (sp < stack)
-		panic("Stack Underflow");
+		panic("stack underflow");
 	return *--sp;
 }
 void push(uint32_t val)
 {
 	if (sp >= stack + STACKSIZ)
-		panic("Stack Overflow");
+		panic("stack overflow");
 	*sp++ = val;
 }
 
@@ -34,7 +35,10 @@ void printstack()
 /* new char from input stream */
 void nextchar()
 {
-	look = getchar();
+	// TODO: skipping whitespace in this function
+	// causes getnum() to accept broken numbers: 12 2 = 122
+	while ((look = getchar()) == ' ' || look == '\t')
+		;
 }
 
 /* match specific input char */
@@ -43,37 +47,73 @@ void match(char c)
 	if (look == c)
 		nextchar();
 	else {
-		char s[1024];
-		sprintf(s, "'%c'", c);
+		char s[TOKENLEN];
+		if (c == '\n')
+			sprintf(s, "'\\n'");
+		else
+			sprintf(s, "'%c'", c);
 		expected(s);
 	}
 }
 
 /* get an identifier */
-char getname()
+char *getname()
 {
 	if (!isalpha(look))
-		expected("Name");
-	// TODO: is toupper needed?
-	// char r = toupper(look);
-	char r = look;
-	nextchar();
-	return r;
+		expected("name");
+
+	char name[TOKENLEN];
+	int i = 0;
+	while (isalnum(look)) {
+		name[i] = look;
+		nextchar();
+		i++;
+	}
+	name[i] = '\0';
+
+	return strdup(name);
 }
 
 /* get a number */
-char getnum()
+uint32_t getnum()
 {
 	if (!isdigit(look))
-		expected("Integer");
-	char r = look;
-	nextchar();
-	return r;
+		expected("integer");
+
+	char num[TOKENLEN];
+	int i = 0;
+	while (isdigit(look)) {
+		num[i] = look;
+		nextchar();
+		i++;
+	}
+	num[i] = '\0';
+	// TODO: atoi returns smaller type than uint32_t
+	return atoi(num);
+}
+
+void ident()
+{
+	char *name = getname();
+	if (look == '(') {
+		match('(');
+		match(')');
+		data[0] = getfunc(name)();
+	}
+	else {
+		uint32_t *vp = getvar(name);
+		if (vp == NULL) {
+			printf("var '%s' not found\n", name);
+			return;
+		}
+		data[0] = *vp;
+	}
+	free(name);
 }
 
 /* parse and execute a math factor */
 void factor()
-// <factor> ::= <number> | (<expression>) | <variable>
+// <factor> ::= <number> | (<expression>) | <variable> | <function()>
 {
 	void expression();
 	// (<expression>)
@@ -82,19 +122,12 @@ void factor()
 		expression();
 		match(')');
 	}
-	// <variable>
-	else if (isalpha(look)) {
-		char varname[2] = {getname(), '\0'};
-		uint32_t *vp = getvar(varname);
-		if (vp == NULL) {
-			printf("var '%s' not found\n", varname);
-			return;
-		}
-		data[0] = *vp;
-	}
+	// <variable> | <function()>
+	else if (isalpha(look))
+		ident();
 	// <number>
 	else
-		data[0] = getnum() - '0'; // EXEC
+		data[0] = getnum(); // EXEC
 }
 
 /* recognize and execute a multiply */
@@ -132,7 +165,7 @@ void term()
 			divide();
 			break;
 		default:
-			expected("Mulop");
+			expected("mulop");
 		}
 	}
 }
@@ -181,13 +214,32 @@ void expression()
 			subtract();
 			break;
 		default:
-			expected("Addop");
+			expected("addop");
 		}
 	}
+}
+
+/* parse and execute an assignment */
+void assignment()
+// <ident>=<expression>
+{
+	char *name = getname();
+	match('=');
+	expression();
+	savevar(name, data[0]);
+	free(name);
 }
 
 /* initialize */
 void init()
 {
+	printf(">>> ");
 	nextchar();
+	while (look != EOF) {
+		expression();
+		printf("%d\n", data[0]);
+		printf(">>> ");
+		match('\n');
+	}
+	putchar('\n');
 }

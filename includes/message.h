@@ -1,6 +1,5 @@
-int printf(const char *, ...);
-int sprintf(char *, const char *, ...);
-void exit(int);
+#include <stdio.h>
+#include <stdlib.h>
 
 /* report error */
 void error(const char *s);

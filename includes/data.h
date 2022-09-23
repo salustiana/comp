@@ -1,11 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define HASHSIZE	101
-
-void *malloc(unsigned long);
-int strcmp(const char *, const char *);
-char *strdup(const char *);
 
 struct entry {
 	struct entry	*next;
@@ -23,6 +21,8 @@ struct fentry {
 	char		*name;
 	uint32_t	(*func)();
 };
+
+char *strdup(const char *s);
 
 void savevar(const char *n, uint32_t val);
 
