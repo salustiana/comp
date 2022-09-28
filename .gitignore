@@ -1,5 +1,8 @@
 *.out
 *.o
+*.l
+lout
+lout.s
 
 .cache
 compile_commands.json

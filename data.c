@@ -2,6 +2,9 @@
 #include "message.h"
 #include "token.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 char *strdup(const char *s)
 {
 	size_t size = sizeof(char) * (strlen(s) + 1);
@@ -54,7 +57,8 @@ struct entry *install(const char *n, size_t size, struct entry *table[])
 		return ep;
 	if ((ep = malloc(size)) == NULL || (ep->name = strdup(n)) == NULL) {
 		char e[TOKENLEN];
-		sprintf(e, "could not allocate memory for %s", n);
+		// TODO
+		//sprintf(e, "could not allocate memory for %s", n);
 		panic(e);
 	}
 	uint32_t hashval = hash(n);
@@ -82,7 +86,8 @@ uint32_t *getvar(const char *n)
 	struct ventry *ep = ((struct ventry *) lookup(n, (struct entry **) vartab));
 	if (ep == NULL) {
 		char e[TOKENLEN];
-		sprintf(e, "undeclared variable: %s", n);
+		// TODO
+		//sprintf(e, "undeclared variable: %s", n);
 		panic(e);
 	}
 
@@ -94,7 +99,8 @@ uint32_t (*getfunc(const char *n))()
 	struct fentry *ep = ((struct fentry *) lookup(n, (struct entry **) functab));
 	if (ep == NULL) {
 		char e[TOKENLEN];
-		sprintf(e, "undeclared function: %s", n);
+		// TODO
+		//sprintf(e, "undeclared function: %s", n);
 		panic(e);
 	}
 

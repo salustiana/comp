@@ -1,10 +1,24 @@
-#include <ctype.h>
 #include <stdint.h>
-#include <stdio.h>
+
+#define REG_A	"%%eax"
+#define REG_B	"%%ebx"
+#define REG_C	"%%ecx"
+#define REG_D	"%%edx"
+#define REG_SP	"%%esp"
 
 extern char look;
-extern uint32_t data[5];
-extern uint32_t addr[5];
 
-/* initialize program */
-void init();
+/* new char from input stream */
+void nextchar();
+
+/* match specific input char */
+void match(char c);
+
+/*
+ * get an identifier
+ * the returned string must be freed
+ */
+char *getname();
+
+/* get a number */
+uint32_t getnum();
