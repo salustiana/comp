@@ -21,10 +21,10 @@ struct fentry {
 
 char *strdup(const char *s);
 
-void savevar(const char *n, uint32_t val);
+void save_var(const char *n, uint32_t val);
 
-void savefunc(const char *n, uint32_t (*func)());
+void save_func(const char *n, uint32_t (*func)());
 
-uint32_t *getvar(const char *n);
+uint32_t *get_var(const char *n);
 
-uint32_t (*getfunc(const char *n))();
+uint32_t (*get_func(const char *n))();

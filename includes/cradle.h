@@ -7,9 +7,24 @@
 #define REG_SP	"%%esp"
 
 extern char look;
+extern uint32_t line;
+extern uint32_t line_char;
+extern char *file_name;
+
+/* output an indented line in the text section */
+void emit_text_ln(const char *fmt, ...);
+
+/* plain output */
+void emit(const char *fmt, ...);
+
+/* produce an exit syscall */
+void emit_exit(const char *fmt, ...);
+
+/* create new static var in bss section */
+void new_static(const char *varname);
 
 /* new char from input stream */
-void nextchar();
+void next_char();
 
 /* match specific input char */
 void match(char c);
@@ -18,7 +33,7 @@ void match(char c);
  * get an identifier
  * the returned string must be freed
  */
-char *getname();
+char *get_name();
 
 /* get a number */
-uint32_t getnum();
+uint32_t get_num();

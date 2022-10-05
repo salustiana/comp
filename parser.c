@@ -9,14 +9,14 @@
 /* parse and translate an identifier */
 void ident()
 {
-	char *name = getname();
+	char *name = get_name();
 	if (look == '(') {
 		match('(');
 		match(')');
-		emitln("call %s", name);
+		emit_text_ln("call %s", name);
 	}
 	else
-		emitln("movl %s, "REG_A, name);
+		emit_text_ln("movl %s, "REG_A, name);
 	free(name);
 }
 
@@ -36,7 +36,7 @@ void factor()
 		ident();
 	// <number>
 	else
-		emitln("movl $%d, "REG_A, getnum());
+		emit_text_ln("movl $%d, "REG_A, get_num());
 }
 
 /* recognize and translate a multiply */
@@ -44,8 +44,8 @@ void multiply()
 {
 	match('*');
 	factor();
-	emitln("popl "REG_B);
-	emitln("imul "REG_B", "REG_A);
+	emit_text_ln("popl "REG_B);
+	emit_text_ln("imull "REG_B", "REG_A);
 }
 
 /* recognize and translate a divide */
@@ -53,9 +53,9 @@ void divide()
 {
 	match('/');
 	factor();
-	emitln("movl "REG_A", "REG_B);
-	emitln("popl "REG_A);
-	emitln("idivl "REG_B);
+	emit_text_ln("movl "REG_A", "REG_B);
+	emit_text_ln("popl "REG_A);
+	emit_text_ln("idivl "REG_B);
 }
 
 /* parse and translate a math term */
@@ -64,7 +64,7 @@ void term()
 {
 	factor();
 	while (look == '*' || look == '/') {
-		emitln("pushl "REG_A);
+		emit_text_ln("pushl "REG_A);
 		switch (look) {
 		case '*':
 			multiply();
@@ -84,8 +84,8 @@ void add()
 {
 	match('+');
 	term();
-	emitln("popl "REG_B);
-	emitln("addl "REG_B", "REG_A);
+	emit_text_ln("popl "REG_B);
+	emit_text_ln("addl "REG_B", "REG_A);
 }
 
 /* recognize and translate a subtract */
@@ -93,9 +93,9 @@ void subtract()
 {
 	match('-');
 	term();
-	emitln("popl "REG_B);
-	emitln("subl "REG_B", "REG_A);
-	emitln("negl "REG_A);
+	emit_text_ln("popl "REG_B);
+	emit_text_ln("subl "REG_B", "REG_A);
+	emit_text_ln("negl "REG_A);
 }
 
 int isaddop(char c)
@@ -110,12 +110,12 @@ void expression()
 	// TODO: this handling of - and + at the beggining is temporary
 	// add a 0 infront if first char in expression is - or +
 	if (isaddop(look))
-		emitln("movl $0, "REG_A);
+		emit_text_ln("movl $0, "REG_A);
 	else
 		term();
 	
 	while (isaddop(look)) {
-		emitln("pushl "REG_A);
+		emit_text_ln("pushl "REG_A);
 		switch (look) {
 		case '+':
 			add();
@@ -130,28 +130,26 @@ void expression()
 }
 
 /* parse and translate an assignment */
-/* TODO
 void assignment()
 // <ident>=<expression>
 {
-	char *name = getname();
+	char *name = get_name();
 	match('=');
 	expression();
-	savevar(name, data[0]);
+	new_static(name);
+	emit_text_ln("movl "REG_A", %s", name);
 	free(name);
 }
-*/
 
 /* initialize */
 void init()
 {
-	emitln(".section .text");
-	emitln(".globl _start");
-	printf("_start:\n");
-	nextchar();
+	emit_text_ln(".globl _start");
+	emit("_start:\n");
+	next_char();
 	while (look != EOF) {
 		expression();
 		match('\n');
 	}
-	emitexit("movl "REG_A", "REG_B);
+	emit_exit("movl "REG_A", "REG_B);
 }

@@ -1,9 +1,3 @@
-/* output an indented line */
-void emitln(const char *fmt, ...);
-
-/* produce an exit syscall */
-void emitexit(const char *fmt, ...);
-
 /* report error */
 void error(const char *fmt, ...);
 

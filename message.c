@@ -5,39 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* output an indented line */
-void emitln(const char *fmt, ...)
-{
-	putchar('\t');
-
-	va_list args;
-	va_start(args, fmt);
-	vprintf(fmt, args);
-	va_end(args);
-
-	putchar('\n');
-}
-
-/* produce an exit syscall */
-void emitexit(const char *fmt, ...)
-{
-	putchar('\t');
-
-	va_list args;
-	va_start(args, fmt);
-	vprintf(fmt, args);
-	va_end(args);
-
-	putchar('\n');
-
-	emitln("movl $1, "REG_A);
-	emitln("int $0x80");
-}
+#define ASCII_BOLD	"\033[1m"
+#define ASCII_RED	"\033[31m"
+#define ASCII_NORMAL	"\033[m"
 
 /* report error */
 void error(const char *fmt, ...)
 {
-	fprintf(stderr, "error: ");
+	fprintf(stderr, ASCII_BOLD"%s:%d:%d: "ASCII_RED"error: "
+			ASCII_NORMAL, file_name, line, line_char);
 
 	va_list args;
 	va_start(args, fmt);
@@ -45,12 +21,16 @@ void error(const char *fmt, ...)
 	va_end(args);
 
 	fprintf(stderr, "\n");
+
+	fprintf(stderr, "%d | "ASCII_BOLD ASCII_RED"%c"
+			ASCII_NORMAL"\n", line, look);
 }
 
 /* report error and halt */
 void panic(const char *fmt, ...)
 {
-	fprintf(stderr, "error: ");
+	fprintf(stderr, ASCII_BOLD"%s:%d:%d: "ASCII_RED"error: "
+			ASCII_NORMAL, file_name, line, line_char);
 
 	va_list args;
 	va_start(args, fmt);
@@ -58,13 +38,17 @@ void panic(const char *fmt, ...)
 	va_end(args);
 
 	fprintf(stderr, "\n");
+
+	fprintf(stderr, "%d | "ASCII_BOLD ASCII_RED"%c"
+			ASCII_NORMAL"\n", line, look);
 	exit(1);
 }
 
 /* report what was expected and halt */
 void expected(const char *fmt, ...)
 {
-	fprintf(stderr, "error: expected ");
+	fprintf(stderr, ASCII_BOLD"%s:%d:%d: "ASCII_RED"error: "
+			ASCII_NORMAL"expected ", file_name, line, line_char);
 
 	va_list args;
 	va_start(args, fmt);
@@ -72,5 +56,8 @@ void expected(const char *fmt, ...)
 	va_end(args);
 
 	fprintf(stderr, "\n");
+
+	fprintf(stderr, "%d | "ASCII_BOLD ASCII_RED"%c"
+			ASCII_NORMAL"\n", line, look);
 	exit(1);
 }

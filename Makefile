@@ -8,6 +8,6 @@ src = src.l
 a.out: ${OBJS} ./includes
 	${CC} ${OBJS} ${INCLUDES} ${CFLAGS} #${LIBS}
 
-comp: ${OBJS} ${src} ./includes
+compile: ${OBJS} ${src} ./includes
 	${CC} ${OBJS} ${INCLUDES} ${CFLAGS} #${LIBS}
 	cat ${src} | ./a.out > lout.s && as --32 lout.s -o lout.o && ld -m elf_i386 lout.o -o lout
