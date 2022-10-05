@@ -67,21 +67,21 @@ struct entry *install(const char *n, size_t size, struct entry *table[])
 	return ep;
 }
 
-void save_var(const char *n, uint32_t val)
+void save_var(const char *n, int32_t val)
 {
 	struct ventry *ep = (struct ventry *) install(n,
 			sizeof(struct ventry), (struct entry **) vartab);
 	ep->val = val;
 }
 
-void save_func(const char *n, uint32_t (*func)())
+void save_func(const char *n, int32_t (*func)())
 {
 	struct fentry *ep = (struct fentry *) install(n,
 			sizeof(struct fentry), (struct entry **) functab);
 	ep->func = func;
 }
 
-uint32_t *get_var(const char *n)
+int32_t *get_var(const char *n)
 {
 	struct ventry *ep = ((struct ventry *) lookup(n, (struct entry **) vartab));
 	if (ep == NULL) {
@@ -94,7 +94,7 @@ uint32_t *get_var(const char *n)
 	return &ep->val;
 }
 
-uint32_t (*get_func(const char *n))()
+int32_t (*get_func(const char *n))()
 {
 	struct fentry *ep = ((struct fentry *) lookup(n, (struct entry **) functab));
 	if (ep == NULL) {

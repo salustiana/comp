@@ -131,7 +131,7 @@ char *get_name()
 }
 
 /* get a number */
-uint32_t get_num()
+int32_t get_num()
 {
 	if (!isdigit(look))
 		expected("integer");
@@ -144,6 +144,5 @@ uint32_t get_num()
 		i++;
 	}
 	num[i] = '\0';
-	// TODO: atoi returns smaller type than uint32_t
 	return atoi(num);
 }
